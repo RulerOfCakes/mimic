@@ -1,0 +1,23 @@
+[package]
+name = "mimic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy_rapier3d = { version = "0.28.0", features = [
+    "simd-stable",
+    "debug-render-3d",
+] }
+nalgebra = { version = "0.33.2", features = ["convert-glam029"] }
+rapier3d-urdf = "0.3.0"
+xurdf = "0.2.2"
+
+[dependencies.bevy]
+version = "0.15.0"
+
+# enable optimizations for rapier only in dev mode
+[profile.dev.package.bevy_rapier3d]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
