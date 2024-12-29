@@ -183,11 +183,15 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
     let root = link_entities
         .iter()
         .find(|(name, _)| indegree.get(*name).is_none());
+    let root_transform =
+        Transform::from_rotation(Quat::from_axis_angle(Vec3::X, -std::f32::consts::FRAC_PI_2));
+    let root_transform = Transform::from_translation(root_pos) * root_transform;
 
     // BFS over the adjacency list to set propagated transforms.
 
     let mut queue = Vec::new();
     if let Some((root_name, _)) = root {
+        link_transforms.insert(root_name.clone(), root_transform);
         queue.push(root_name.clone());
     }
 

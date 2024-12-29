@@ -4,6 +4,6 @@ Mimic is a project inspired by [DeepMimic](https://xbpeng.github.io/projects/Dee
 
 # Dependencies
 - [`Rapier`](https://rapier.rs/)
-- ['Bevy'](https://bevyengine.org/)
-- ['nalgebra'](https://nalgebra.org/)
-- ['xurdf'](https://github.com/neka-nat/xurdf)
+- [`Bevy`](https://bevyengine.org/)
+- [`nalgebra`](https://nalgebra.org/)
+- [`xurdf`](https://github.com/neka-nat/xurdf)

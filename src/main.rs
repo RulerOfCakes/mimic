@@ -43,7 +43,7 @@ fn load_humanoid(mut commands: Commands) {
     spawn_urdf(
         &mut commands,
         "./assets/dmm-humanoid.urdf",
-        Vec3::new(0., 5., 0.),
+        Vec3::new(0., -1., 0.),
     );
 }
 
@@ -55,13 +55,6 @@ fn setup_physics(
     commands
         .spawn(Collider::cuboid(100.0, 0.1, 100.0))
         .insert(Transform::from_xyz(0.0, -2.0, 0.0));
-
-    /* Create the bouncing ball. */
-    commands
-        .spawn(RigidBody::Dynamic)
-        .insert(Collider::ball(0.5))
-        .insert(Restitution::coefficient(0.7))
-        .insert(Transform::from_xyz(0.0, 4.0, 0.0));
 }
 
 fn reset_humanoid(mut commands: Commands, query: Query<Entity, With<RigidBody>>) {
@@ -70,4 +63,10 @@ fn reset_humanoid(mut commands: Commands, query: Query<Entity, With<RigidBody>>)
         commands.entity(entity).despawn_recursive();
     }
     load_humanoid(commands);
+}
+
+fn query_forces(query: Query<&ExternalForce, With<RigidBody>>) {
+    for force in query.iter() {
+        println!("{:?}", force.force);
+    }
 }
