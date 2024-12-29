@@ -56,8 +56,6 @@ fn setup_physics(
         .spawn(Collider::cuboid(100.0, 0.1, 100.0))
         .insert(Transform::from_xyz(0.0, -2.0, 0.0));
 
-    // change gravity direction
-    let mut rapier_config = rapier_config.single_mut();
     /* Create the bouncing ball. */
     commands
         .spawn(RigidBody::Dynamic)

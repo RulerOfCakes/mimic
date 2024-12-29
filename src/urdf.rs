@@ -80,21 +80,20 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
                     Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2));
                 self_transform = self_transform * zup_to_yup;
             }
-
-            // link_col_transforms.insert(link.name.clone(), self_transform);
-
             // the collider's transform should be relative to the link's origin.
-            link_entity.with_child((collider, self_transform));
-        } else {
-            // link_col_transforms.insert(link.name.clone(), Transform::IDENTITY);
+            link_entity.with_child((
+                collider,
+                self_transform,
+                ColliderMassProperties::Density(0.),
+            ));
         }
         link_transforms.insert(link.name.clone(), Transform::IDENTITY);
 
         // mass properties
         {
-            let mprops =
-                ColliderMassProperties::MassProperties(mass_from_link_inertial(&link.inertial));
-            link_entity.insert(mprops);
+            let mprops = mass_from_link_inertial(&link.inertial);
+            link_entity.insert(AdditionalMassProperties::MassProperties(mprops));
+            //   link_entity.insert(AdditionalMassProperties::Mass(0.001));
         }
 
         link_entities.insert(link.name.clone(), link_entity.id());
@@ -102,7 +101,6 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
 
     // In ideal cases(assumed), there should be 1 root link with indegree 0.
     let mut indegree: HashMap<String, usize> = HashMap::new();
-    // required to easily compute the transform chain
     let mut adjacency_list: HashMap<String, Vec<String>> = HashMap::new();
 
     for joint in &robot.joints {
@@ -195,7 +193,7 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
 
     while !queue.is_empty() {
         let current = queue.remove(0);
-        let current_transform = *link_transforms.get(&current).unwrap();
+        let current_transform: Transform = *link_transforms.get(&current).unwrap();
         let children = adjacency_list.get(&current);
         if let Some(children) = children {
             for child in children {
@@ -228,6 +226,9 @@ fn compute_principal_inertia(
 
     // Eigenvectors form the rotation matrix (principal axes)
     let rotation_matrix = eigen.eigenvectors;
+
+    // Normalize the rotation matrix
+    let rotation_matrix = rotation_matrix.normalize();
 
     // Convert the rotation matrix to a quaternion
     let rotation_quaternion = UnitQuaternion::from_matrix(&rotation_matrix);
