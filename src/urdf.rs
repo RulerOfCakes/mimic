@@ -4,29 +4,16 @@ use bevy::{
 };
 use bevy_rapier3d::prelude::*;
 use nalgebra::{Matrix3, Quaternion, SymmetricEigen, Unit, UnitQuaternion, Vector3};
-use rapier3d_urdf::{UrdfLoaderOptions, UrdfRobot};
 
 #[derive(Component)]
 pub struct Robot;
 
 // spawns a URDF file as a Bevy entity.
+// TODO: support mesh?
 pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
-    let options = UrdfLoaderOptions {
-        create_colliders_from_visual_shapes: true,
-        create_colliders_from_collision_shapes: false,
-        make_roots_fixed: true,
-        // Z-up to Y-up.
-        // shift: Isometry::rotation(Vector::x() * std::f32::consts::FRAC_PI_2),
-        ..Default::default()
-    };
-
-    // TODO: support mesh?
-    let (_, robot) = UrdfRobot::from_file(urdf_path, options, None).unwrap_or_else(|e| {
+    let robot = xurdf::parse_urdf_from_file(urdf_path).unwrap_or_else(|e| {
         panic!("Failed to load URDF file: {}", e);
     });
-
-    // We cannot use this method without messing up bevy's graphics context.
-    // humanoid.insert_using_impulse_joints(bodies, colliders, impulse_joints)
 
     // used when setting up joints & modifying the link transforms.
     let mut link_entities: HashMap<String, Entity> = HashMap::new();
@@ -55,6 +42,9 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
                 ),
                 xurdf::Geometry::Cylinder { radius, length } => {
                     Collider::cylinder((*length as f32) / 2f32, *radius as f32)
+                }
+                xurdf::Geometry::Capsule { radius, length } => {
+                    Collider::capsule_z((*length as f32) / 2f32, *radius as f32)
                 }
                 xurdf::Geometry::Sphere { radius } => Collider::ball(*radius as f32),
                 xurdf::Geometry::Mesh { .. } => {
@@ -86,6 +76,8 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
                 self_transform,
                 ColliderMassProperties::Density(0.),
             ));
+            // enable CCD for all colliders.
+            link_entity.insert(Ccd::enabled());
         }
         link_transforms.insert(link.name.clone(), Transform::IDENTITY);
 
@@ -150,12 +142,18 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
             "revolute" => RevoluteJointBuilder::new(joint_axis)
                 .local_anchor1(anchor1)
                 .local_anchor2(Vec3::ZERO)
-                .limits([joint.limit.lower as f32, joint.limit.upper as f32]) // TODO: figure out a way to apply effort & velocity limits.
+                .limits([joint.limit.lower as f32, joint.limit.upper as f32]) // TODO: figure out a way to apply velocity limits.
                 .motor_max_force(joint.limit.effort as f32)
                 .build()
                 .into(),
             "continuous" => {
-                unimplemented!("Continuous joints are not supported yet by rapier.");
+                // continuous joints are just revolute joints without limits
+                RevoluteJointBuilder::new(joint_axis)
+                    .local_anchor1(anchor1)
+                    .local_anchor2(Vec3::ZERO)
+                    .motor_max_force(joint.limit.effort as f32)
+                    .build()
+                    .into()
             }
             "prismatic" => {
                 todo!()

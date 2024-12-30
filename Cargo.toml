@@ -12,8 +12,7 @@ bevy_rapier3d = { version = "0.28.0", features = [
     "debug-render-3d",
 ] }
 nalgebra = { version = "0.33.2", features = ["convert-glam029"] }
-rapier3d-urdf = "0.3.0"
-xurdf = "0.2.2"
+xurdf = { git = "https://github.com/rulerofcakes/xurdf", branch = "capsule" }
 
 [dependencies.bevy]
 version = "0.15.0"

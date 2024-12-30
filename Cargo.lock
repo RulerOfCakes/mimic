@@ -3075,7 +3075,6 @@ dependencies = [
  "bevy_panorbit_camera",
  "bevy_rapier3d",
  "nalgebra",
- "rapier3d-urdf",
  "xurdf",
 ]
 
@@ -3964,19 +3963,6 @@ dependencies = [
  "simba",
  "thiserror 1.0.69",
  "vec_map",
-]
-
-[[package]]
-name = "rapier3d-urdf"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f8ce6f4c7b98b3f96ac4f5dfdd5b8b41b69d184d4343d892c0d6c8b13ca1e7b"
-dependencies = [
- "anyhow",
- "bitflags 2.6.0",
- "log",
- "rapier3d",
- "xurdf",
 ]
 
 [[package]]
@@ -5786,9 +5772,8 @@ dependencies = [
 
 [[package]]
 name = "xurdf"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b650c9901c76d75a136246d029e7c898aa65bca68b3598e225023af6726a771"
+version = "0.2.4"
+source = "git+https://github.com/rulerofcakes/xurdf?branch=capsule#1e473576b7c2ba2b5b734a6fa897da6424f9a3ad"
 dependencies = [
  "anyhow",
  "nalgebra",

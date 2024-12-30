@@ -1,3 +1,4 @@
 /target
 mimic.exe
 /.cargo
+/.xwin-cache
