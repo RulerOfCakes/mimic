@@ -1,5 +1,5 @@
 fn main() {
-    let robot = xurdf::parse_urdf_from_file("./assets/quadruped.urdf");
+    let robot = xurdf::parse_urdf_from_file("./assets/ant_torso.urdf");
     match robot {
         Ok(robot) => {
             println!("{:?}", robot.joints);

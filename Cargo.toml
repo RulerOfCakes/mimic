@@ -17,6 +17,10 @@ xurdf = { git = "https://github.com/rulerofcakes/xurdf", branch = "capsule" }
 [dependencies.bevy]
 version = "0.15.0"
 
+[dependencies.pyo3]
+version = "0.23.3"
+features = ["auto-initialize"]
+
 # enable optimizations for rapier only in dev mode
 [profile.dev.package."*"]
 opt-level = 3

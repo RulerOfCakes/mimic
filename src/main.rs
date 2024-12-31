@@ -26,8 +26,8 @@ fn main() {
     let mut app = App::new();
 
     app.insert_resource(URDFModelConfig {
-        model: URDFModel::Ant,
-        root_pos: Vec3::new(0., -1., 0.),
+        model: URDFModel::Quadruped,
+        root_pos: Vec3::new(0., 0., 0.),
     })
     .register_type::<URDFModelConfig>()
     .add_plugins(DefaultPlugins)
@@ -64,10 +64,14 @@ fn setup_graphics(mut commands: Commands) {
 fn load_urdfmodel(mut commands: Commands, urdf_model_config: Res<URDFModelConfig>) {
     let path = match urdf_model_config.model {
         URDFModel::Humanoid => "./assets/dmm-humanoid.urdf",
-        URDFModel::Ant => "./assets/ant_torso.urdf",
-        URDFModel::Quadruped => "./assets/quadruped.urdf",
+        URDFModel::Ant => "./assets/ant.urdf",
+        URDFModel::Quadruped => "./assets/quadruped_2.urdf",
         URDFModel::Minitaur => "./assets/minitaur.urdf",
     };
+    // let from_mjcf = match urdf_model_config.model {
+    //     URDFModel::Ant | URDFModel::Minitaur | URDFModel::Quadruped => true,
+    //     _ => false,
+    // };
 
     spawn_urdf(&mut commands, path, urdf_model_config.root_pos)
 }
