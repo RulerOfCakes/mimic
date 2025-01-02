@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <robot name="ant">
+    <!-- Material Definition -->
     <material name="ant_material">
         <color rgba="0.8 0.6 0.4 1"/>
     </material>
 
+    <!-- Torso -->
     <link name="torso">
         <visual>
             <geometry>
@@ -17,211 +19,351 @@
             </geometry>
         </collision>
         <inertial>
-            <mass value="1"/>
+            <mass value="1.0"/>
             <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
         </inertial>
     </link>
 
+    <!-- Parameters -->
+    <!-- Common Dimensions and Masses -->
+    <!-- Leg Dimensions -->
+    <!-- Leg radius: 0.08 -->
+    <!-- Thigh length: 0.5 -->
+    <!-- Shin length: 0.5 -->
+    <!-- Masses -->
+    <!-- mass_thigh: 0.1 -->
+    <!-- mass_shin: 0.1 -->
+    <!-- Hip angle in radians (45 degrees): 0.7854 -->
+
     <!-- Front Left Leg -->
-    <link name="front_left_leg">
+    <!-- Thigh Link -->
+    <link name="front_left_thigh">
         <visual>
+            <!-- Rotate the thigh to point horizontally -->
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="0.141 0.141 0" rpy="0 1.571 0.785"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="0.141 0.141 0" rpy="0 1.571 0.785"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+        </inertial>
     </link>
 
-    <link name="front_left_foot">
+    <!-- Thigh Pitch Link (Massless) -->
+    <link name="front_left_thigh_pitch">
+        <inertial>
+            <mass value="0.0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
+    </link>
+
+    <!-- Shin Link -->
+    <link name="front_left_shin">
         <visual>
+            <!-- The shin extends downwards from the thigh -->
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="0.283 0.283 0" rpy="0 1.571 0.785"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="0.283 0.283 0" rpy="0 1.571 0.785"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+        </inertial>
     </link>
 
     <!-- Front Right Leg -->
-    <link name="front_right_leg">
+    <!-- Thigh Link -->
+    <link name="front_right_thigh">
         <visual>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="-0.141 0.141 0" rpy="0 1.571 -0.785"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="-0.141 0.141 0" rpy="0 1.571 -0.785"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+        </inertial>
     </link>
 
-    <link name="front_right_foot">
+    <!-- Thigh Pitch Link (Massless) -->
+    <link name="front_right_thigh_pitch">
+        <inertial>
+            <mass value="0.0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
+    </link>
+
+    <!-- Shin Link -->
+    <link name="front_right_shin">
         <visual>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="-0.283 0.283 0" rpy="0 1.571 -0.785"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="-0.283 0.283 0" rpy="0 1.571 -0.785"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+        </inertial>
     </link>
 
     <!-- Back Left Leg -->
-    <link name="left_back_leg">
+    <!-- Thigh Link -->
+    <link name="back_left_thigh">
         <visual>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="-0.141 -0.141 0" rpy="0 1.571 -2.356"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="-0.141 -0.141 0" rpy="0 1.571 -2.356"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+        </inertial>
     </link>
 
-    <link name="left_back_foot">
+    <!-- Thigh Pitch Link (Massless) -->
+    <link name="back_left_thigh_pitch">
+        <inertial>
+            <mass value="0.0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
+    </link>
+
+    <!-- Shin Link -->
+    <link name="back_left_shin">
         <visual>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="-0.283 -0.283 0" rpy="0 1.571 -2.356"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="-0.283 -0.283 0" rpy="0 1.571 -2.356"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+        </inertial>
     </link>
 
     <!-- Back Right Leg -->
-    <link name="right_back_leg">
+    <!-- Thigh Link -->
+    <link name="back_right_thigh">
         <visual>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="0.141 -0.141 0" rpy="0 1.571 2.356"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0.3 0 0" rpy="0 -1.5708 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.283"/>
+                <cylinder radius="0.08" length="0.5"/>
             </geometry>
-            <origin xyz="0.141 -0.141 0" rpy="0 1.571 2.356"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+        </inertial>
     </link>
 
-    <link name="right_back_foot">
+    <!-- Thigh Pitch Link (Massless) -->
+    <link name="back_right_thigh_pitch">
+        <inertial>
+            <mass value="0.0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
+    </link>
+
+    <!-- Shin Link -->
+    <link name="back_right_shin">
         <visual>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="0.283 -0.283 0" rpy="0 1.571 2.356"/>
             <material name="ant_material"/>
         </visual>
         <collision>
+            <origin xyz="0 0 -0.3" rpy="0 0 0"/>
             <geometry>
-                <cylinder radius="0.08" length="0.566"/>
+                <cylinder radius="0.08" length="0.3"/>
             </geometry>
-            <origin xyz="0.283 -0.283 0" rpy="0 1.571 2.356"/>
         </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/>
+        </inertial>
     </link>
 
     <!-- Joints -->
-
     <!-- Front Left Leg Joints -->
-    <joint name="hip_1" type="revolute">
+    <!-- Hip Roll Joint -->
+    <joint name="hip1_roll" type="revolute">
         <parent link="torso"/>
-        <child link="front_left_leg"/>
+        <child link="front_left_thigh"/>
+        <!-- Position hip joint at (0.2, 0.2, 0) -->
+        <origin xyz="0.2 0.2 0" rpy="0 0 0.7854"/>
+        <!-- Rotate around Z-axis -->
         <axis xyz="0 0 1"/>
-        <limit lower="-0.698" upper="0.698" effort="150" velocity="1"/>
-        <origin xyz="0.25 0.25 0"/>
+        <limit lower="-0.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
-    <joint name="ankle_1" type="revolute">
-        <parent link="front_left_leg"/>
-        <child link="front_left_foot"/>
-        <axis xyz="-0.707 0.707 0"/>
-        <limit lower="0.523" upper="1.745" effort="150" velocity="1"/>
-        <origin xyz="0.283 0.283 0"/>
+    <!-- Hip Pitch Joint -->
+    <joint name="hip1_pitch" type="revolute">
+        <parent link="front_left_thigh"/>
+        <child link="front_left_thigh_pitch"/>
+        <!-- Located at the end of thigh -->
+        <origin xyz="0.1 0 -0.08" rpy="0 0 0"/>
+        <!-- Rotate around Y-axis -->
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0" effort="100" velocity="1.0"/>
+    </joint>
+
+    <!-- Knee Joint -->
+    <joint name="knee1" type="revolute">
+        <parent link="front_left_thigh_pitch"/>
+        <child link="front_left_shin"/>
+        <!-- Shin connected below thigh -->
+        <origin xyz="0.5 0 0" rpy="0 0 0"/>
+        <!-- Rotate around Y-axis -->
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
     <!-- Front Right Leg Joints -->
-    <joint name="hip_2" type="revolute">
+    <!-- Hip Roll Joint -->
+    <joint name="hip2_roll" type="revolute">
         <parent link="torso"/>
-        <child link="front_right_leg"/>
+        <child link="front_right_thigh"/>
+        <!-- Position hip joint at (0.2, -0.2, 0) -->
+        <origin xyz="0.2 -0.2 0" rpy="0 0 -0.7854"/>
+        <!-- Rotate around Z-axis -->
         <axis xyz="0 0 1"/>
-        <limit lower="-0.698" upper="0.698" effort="150" velocity="1"/>
-        <origin xyz="-0.25 0.25 0"/>
+        <limit lower="-0.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
-    <joint name="ankle_2" type="revolute">
-        <parent link="front_right_leg"/>
-        <child link="front_right_foot"/>
-        <axis xyz="0.707 0.707 0"/>
-        <limit lower="-1.745" upper="-0.523" effort="150" velocity="1"/>
-        <origin xyz="-0.283 0.283 0"/>
+    <!-- Hip Pitch Joint -->
+    <joint name="hip2_pitch" type="revolute">
+        <parent link="front_right_thigh"/>
+        <child link="front_right_thigh_pitch"/>
+        <origin xyz="0.1 0 -0.08" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0" effort="100" velocity="1.0"/>
+    </joint>
+
+    <!-- Knee Joint -->
+    <joint name="knee2" type="revolute">
+        <parent link="front_right_thigh_pitch"/>
+        <child link="front_right_shin"/>
+        <origin xyz="0.5 0 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
     <!-- Back Left Leg Joints -->
-    <joint name="hip_3" type="revolute">
+    <!-- Hip Roll Joint -->
+    <joint name="hip3_roll" type="revolute">
         <parent link="torso"/>
-        <child link="left_back_leg"/>
+        <child link="back_left_thigh"/>
+        <!-- Position hip joint at (0.2, -0.2, 0) -->
+        <origin xyz="-0.2 0.2 0" rpy="0 0 2.3562"/>
+        <!-- Rotate around Z-axis -->
         <axis xyz="0 0 1"/>
-        <limit lower="-0.698" upper="0.698" effort="150" velocity="1"/>
-        <origin xyz="-0.25 -0.25 0"/>
+        <limit lower="-0.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
-    <joint name="ankle_3" type="revolute">
-        <parent link="left_back_leg"/>
-        <child link="left_back_foot"/>
-        <axis xyz="-0.707 0.707 0"/>
-        <limit lower="-1.745" upper="-0.523" effort="150" velocity="1"/>
-        <origin xyz="-0.283 -0.283 0"/>
+    <!-- Hip Pitch Joint -->
+    <joint name="hip3_pitch" type="revolute">
+        <parent link="back_left_thigh"/>
+        <child link="back_left_thigh_pitch"/>
+        <origin xyz="0.1 0 -0.08" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0" effort="100" velocity="1.0"/>
+    </joint>
+
+    <!-- Knee Joint -->
+    <joint name="knee3" type="revolute">
+        <parent link="back_left_thigh_pitch"/>
+        <child link="back_left_shin"/>
+        <origin xyz="0.5 0 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
     <!-- Back Right Leg Joints -->
-    <joint name="hip_4" type="revolute">
+    <!-- Hip Roll Joint -->
+    <joint name="hip4_roll" type="revolute">
         <parent link="torso"/>
-        <child link="right_back_leg"/>
+        <child link="back_right_thigh"/>
+        <!-- Position hip joint at (-0.2, -0.2, 0) -->
+        <origin xyz="-0.2 -0.2 0" rpy="0 0 -2.3562"/>
+        <!-- Rotate around Z-axis -->
         <axis xyz="0 0 1"/>
-        <limit lower="-0.698" upper="0.698" effort="150" velocity="1"/>
-        <origin xyz="0.25 -0.25 0"/>
+        <limit lower="-0.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
-    <joint name="ankle_4" type="revolute">
-        <parent link="right_back_leg"/>
-        <child link="right_back_foot"/>
-        <axis xyz="0.707 0.707 0"/>
-        <limit lower="0.523" upper="1.745" effort="150" velocity="1"/>
-        <origin xyz="0.283 -0.283 0"/>
+    <!-- Hip Pitch Joint -->
+    <joint name="hip4_pitch" type="revolute">
+        <parent link="back_right_thigh"/>
+        <child link="back_right_thigh_pitch"/>
+        <origin xyz="0.1 0 -0.08" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0" effort="100" velocity="1.0"/>
+    </joint>
+
+    <!-- Knee Joint -->
+    <joint name="knee4" type="revolute">
+        <parent link="back_right_thigh_pitch"/>
+        <child link="back_right_shin"/>
+        <origin xyz="0.5 0 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.5" upper="0.5" effort="100" velocity="1.0"/>
     </joint>
 
 </robot>

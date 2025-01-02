@@ -1,3 +1,5 @@
+use crate::physics::PreviousTransform;
+use crate::rl::{ModelArgs, RLContext};
 use bevy::{
     prelude::*,
     utils::{hashbrown::HashMap, tracing},
@@ -8,9 +10,28 @@ use nalgebra::{Matrix3, Quaternion, SymmetricEigen, Unit, UnitQuaternion, Vector
 #[derive(Component)]
 pub struct Robot;
 
+#[derive(Component)]
+pub struct Root;
+
+#[derive(Component)]
+pub struct JointInfo {
+    pub is_mobile: bool,
+    pub index: usize,
+    pub max_force: Option<f32>,
+    pub max_velocity: Option<f32>, // TODO: enforce this constraint
+    pub moment_arm: f32,
+    pub damping: f32,
+    pub friction: f32,
+}
+
 // spawns a URDF file as a Bevy entity.
 // TODO: support mesh?
-pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
+pub fn spawn_urdf(
+    commands: &mut Commands,
+    urdf_path: &str,
+    root_pos: Vec3,
+    rl_context: &mut RLContext,
+) {
     let robot = xurdf::parse_urdf_from_file(urdf_path).unwrap_or_else(|e| {
         panic!("Failed to load URDF file: {}", e);
     });
@@ -23,6 +44,7 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
     for link in robot.links {
         let mut link_entity = commands.spawn(RigidBody::Dynamic);
         link_entity.insert(Name::new(link.name.clone()));
+        link_entity.insert(Velocity::default());
 
         // Assume 1 collider per link for now.
         // TODO: support multiple colliders per link.
@@ -94,8 +116,8 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
     // In ideal cases(assumed), there should be 1 root link with indegree 0.
     let mut indegree: HashMap<String, usize> = HashMap::new();
     let mut adjacency_list: HashMap<String, Vec<String>> = HashMap::new();
-
-    for joint in &robot.joints {
+    let mut mobile_joints: usize = 0;
+    robot.joints.iter().for_each(|joint| {
         indegree
             .entry(joint.child.clone())
             .and_modify(|e| *e += 1)
@@ -138,15 +160,30 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
         let accumulated_transform = child_transform.mul_transform(joint_transform);
         link_transforms.insert(joint.child.clone(), accumulated_transform);
 
+        let mut joint_info = JointInfo {
+            is_mobile: true,
+            index: 0,
+            max_force: None,
+            max_velocity: None,
+            moment_arm: 0.,
+            damping: 1., // default to 1 to avoid division by 0
+            friction: 0.,
+        };
+
         let joint: TypedJoint = match joint.joint_type.as_str() {
-            "revolute" => RevoluteJointBuilder::new(joint_axis)
-                .local_anchor1(anchor1)
-                .local_anchor2(Vec3::ZERO)
-                .limits([joint.limit.lower as f32, joint.limit.upper as f32]) // TODO: figure out a way to apply velocity limits.
-                .motor_max_force(joint.limit.effort as f32)
-                .build()
-                .into(),
+            "revolute" => {
+                joint_info.max_force = Some(joint.limit.effort as f32);
+                RevoluteJointBuilder::new(joint_axis)
+                    .local_anchor1(anchor1)
+                    .local_anchor2(Vec3::ZERO)
+                    .limits([joint.limit.lower as f32, joint.limit.upper as f32]) // TODO: figure out a way to apply velocity limits.
+                    .motor_max_force(joint.limit.effort as f32)
+                    .motor_model(MotorModel::ForceBased)
+                    .build()
+                    .into()
+            }
             "continuous" => {
+                joint_info.max_force = Some(joint.limit.effort as f32);
                 // continuous joints are just revolute joints without limits
                 RevoluteJointBuilder::new(joint_axis)
                     .local_anchor1(anchor1)
@@ -158,11 +195,14 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
             "prismatic" => {
                 todo!()
             }
-            "fixed" => FixedJointBuilder::new()
-                .local_anchor1(anchor1)
-                .local_anchor2(Vec3::ZERO)
-                .build()
-                .into(),
+            "fixed" => {
+                joint_info.is_mobile = false;
+                FixedJointBuilder::new()
+                    .local_anchor1(anchor1)
+                    .local_anchor2(Vec3::ZERO)
+                    .build()
+                    .into()
+            }
             "floating" => {
                 unimplemented!("Floating joints are not supported yet by rapier.");
             }
@@ -173,10 +213,18 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
                 unimplemented!("Invalid joint type: {}", joint.joint_type);
             }
         };
+        if joint_info.is_mobile {
+            joint_info.index = mobile_joints;
+            mobile_joints += 1;
+        }
+
         let joint = ImpulseJoint::new(*parent_entity, joint);
-        commands.entity(*child_entity).insert(joint);
+        commands
+            .entity(*child_entity)
+            .insert(joint)
+            .insert(joint_info);
         // TODO: insert names to joints as well?
-    }
+    });
 
     let root = link_entities
         .iter()
@@ -188,9 +236,10 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
     // BFS over the adjacency list to set propagated transforms.
 
     let mut queue = Vec::new();
-    if let Some((root_name, _)) = root {
+    if let Some((root_name, root_entity)) = root {
         link_transforms.insert(root_name.clone(), root_transform);
         queue.push(root_name.clone());
+        commands.entity(*root_entity).insert(Root);
     }
 
     while !queue.is_empty() {
@@ -211,8 +260,23 @@ pub fn spawn_urdf(commands: &mut Commands, urdf_path: &str, root_pos: Vec3) {
             commands
                 .entity(*link_entities.get(link_name).unwrap())
                 .insert(*link_transform)
+                .insert(PreviousTransform(GlobalTransform::from(*link_transform)))
                 .insert(Robot);
         });
+
+    // finally, initialize rl model
+    rl_context
+        .init_model(ModelArgs {
+            obs_dim: 13 + mobile_joints * 2,
+            act_dim: mobile_joints,
+            ent_coeff: 0.00005,
+            device: "cpu".to_string(),
+            actor_lr: 0.0005,
+            critic_lr: 0.0005,
+            timesteps_per_batch: 7000,
+            reward_scale: 0.1,
+        })
+        .expect("Failed to initialize RL model.");
 }
 
 // fn change_zup_to_yup(robot: xurdf::Robot) -> xurdf::Robot {}
