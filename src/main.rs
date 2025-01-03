@@ -42,13 +42,13 @@ fn main() {
 
     app.insert_resource(URDFModelConfig {
         model: URDFModel::Ant,
-        root_pos: Vec3::new(0., 1., 0.),
+        root_pos: Vec3::new(0., 1.5, 0.),
     })
     .register_type::<URDFModelConfig>()
     .insert_resource(RLContext::new(5000))
     .insert_resource(TimestepMode::Fixed {
-        dt: 1.0 / 60.0,
-        substeps: 1,
+        dt: 1.0 / 180.0,
+        substeps: 3,
     })
     .add_plugins(DefaultPlugins)
     .add_plugins(WorldInspectorPlugin::new())
@@ -137,7 +137,7 @@ fn setup_physics(
 
     // tune this parameter to accelerate the simulation
     // rapier_context.integration_parameters.dt
-    time.set_timestep_hz(200.);
+    time.set_timestep_hz(300.);
 }
 
 fn learn_model(mut rl_context: ResMut<RLContext>) {
@@ -394,7 +394,7 @@ fn apply_forces(
             match joint.data {
                 TypedJoint::RevoluteJoint(_) => {
                     let target_velocity = forces[joint_info.index];
-                    let target_velocity = target_velocity.clamp(-2., 2.);
+                    // let target_velocity = target_velocity.clamp(-2., 2.);
 
                     joint
                         .data

@@ -2,7 +2,7 @@ use bevy::prelude::{Res, Resource};
 use bevy::utils::tracing;
 use pyo3::ffi::c_str;
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
+use pyo3::types::{IntoPyDict, PyTuple};
 use pyo3::{PyObject, Python};
 
 #[derive(Resource)]
@@ -92,21 +92,25 @@ impl RLContext {
                 .getattr("torch")?
                 .getattr("device")?
                 .call((args.device.into_pyobject(py)?,), None)?;
-            let args = PyTuple::new(
-                py,
-                &[
-                    args.obs_dim.into_pyobject(py)?.as_any(),
-                    args.act_dim.into_pyobject(py)?.as_any(),
-                    args.ent_coeff.into_pyobject(py)?.as_any(),
-                    device_arg.as_any(),
-                    args.actor_lr.into_pyobject(py)?.as_any(),
-                    args.critic_lr.into_pyobject(py)?.as_any(),
+            let kwargs = [
+                ("obs_dim", args.obs_dim.into_pyobject(py)?.as_any()),
+                ("act_dim", args.act_dim.into_pyobject(py)?.as_any()),
+                ("ent_coef", args.ent_coeff.into_pyobject(py)?.as_any()),
+                ("device", device_arg.as_any()),
+                ("actor_lr", args.actor_lr.into_pyobject(py)?.as_any()),
+                ("critic_lr", args.critic_lr.into_pyobject(py)?.as_any()),
+                (
+                    "timesteps_per_batch",
                     args.timesteps_per_batch.into_pyobject(py)?.as_any(),
+                ),
+                (
+                    "reward_scale",
                     args.reward_scale.into_pyobject(py)?.as_any(),
-                ],
-            )?;
+                ),
+            ]
+            .into_py_dict(py)?;
             Ok(ppo_class
-                .call(args, None)
+                .call((), Some(&kwargs))
                 .unwrap()
                 .into_pyobject(py)?
                 .unbind())

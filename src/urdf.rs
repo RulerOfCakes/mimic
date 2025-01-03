@@ -269,12 +269,12 @@ pub fn spawn_urdf(
         .init_model(ModelArgs {
             obs_dim: 13 + mobile_joints * 2,
             act_dim: mobile_joints,
-            ent_coeff: 0.00005,
+            ent_coeff: 0.0005,
             device: "cpu".to_string(),
             actor_lr: 0.0005,
             critic_lr: 0.0005,
             timesteps_per_batch: 7000,
-            reward_scale: 0.1,
+            reward_scale: 0.05,
         })
         .expect("Failed to initialize RL model.");
 }
